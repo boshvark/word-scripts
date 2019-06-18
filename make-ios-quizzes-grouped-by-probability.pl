@@ -2,14 +2,38 @@
 
 use warnings;
 use strict;
+use Getopt::Long;
 
-my @lexicons = ('OWL3');
+my %options;
+my $ok = GetOptions(\%options, "zyzdir=s", "zyzdatadir=s", "wordlist=s", "listsize=i", "lexicon=s");
+
+# Zyzzyva installation directory
+die "Please specify Zyzzyva installation directory with --zyzdir.\n" unless exists $options{'zyzdir'};
+my $zyzdir = $options{'zyzdir'};
+
+# Zyzzyva data directory
+die "Please specify Zyzzyva data directory with --zyzdatadir.\n" unless exists $options{'zyzdatadir'};
+my $zyzdatadir = $options{'zyzdatadir'};
+
+# Limit to words in a particular word list.
+my %wordlist;
+if (exists $options{'wordlist'}) {
+  my $wordlist_file = $options{'wordlist'};
+  open IN, "<$wordlist_file" or die "Can't open $wordlist_file: $!\n";
+  while (my $line = <IN>) {
+      my ($word) = ($line =~ /(\w+)/);
+      next unless length $word;
+      $word = uc $word;
+      $wordlist{$word} = 1;
+      #print "Word: $word\n";
+  }
+}
+
+my @lexicons = ('NWL2018');
 my @word_lengths = (7, 8);
 my @num_blanks = (0);
-my $db_dir = "$ENV{HOME}/Dropbox/Apps/Zyzzyva/lexicons";
-my $zyzdir = "$ENV{HOME}/Dropbox/Scrabble/zyzzyva-data";
 my $sqlite = 'sqlite3';
-my $list_size = 100;
+my $list_size = exists $options{'listsize'} ? $options{'listsize'} : 100;
 my $folder_lists = 10;
 my $folder_size = $list_size * $folder_lists;
 
@@ -32,7 +56,7 @@ for my $lexicon (@lexicons) {
             my $word_length_dir = "$num_blanks_dir/$word_length_str";
             system 'mkdir', '-p', $word_length_dir;
 
-            my $db_file = "$db_dir/$lexicon.db";
+            my $db_file = "$zyzdatadir/lexicons/$lexicon.db";
             my $word_count = `$sqlite $db_file 'select count(*) from words where length = $word_length'`;
             chomp $word_count;
             my $max_index_length = length $word_count;
@@ -45,7 +69,6 @@ for my $lexicon (@lexicons) {
             my $sprintf_format = "$word_length_str-%0${max_index_length}d";
 
             while ($index < $word_count) {
-
                 if (!($index % $folder_size)) {
                     $folder_name = sprintf($sprintf_format, $index + $folder_size);
                     $list_dir = "$word_length_dir/$folder_name";
@@ -61,8 +84,23 @@ for my $lexicon (@lexicons) {
                 my $list_name = sprintf($sprintf_format, $end);
                 my $list_file = "$list_dir/$list_name.txt";
 
+                my @words = ($words =~ /^(\w+)/mg);
+                if (exists $options{'wordlist'}) {
+                  my @filtered_words;
+                  for my $word (@words) {
+                    #print "Word: $word\n";
+                    if (exists $wordlist{$word}) {
+                      #print ">>>>>>>  $word\n";
+                      push @filtered_words, $word;
+                    }
+                  }
+                  @words = @filtered_words;
+                }
+
                 open OUT, ">$list_file" or die "Can't open output file $list_file: $!\n";
-                print OUT $words;
+                for my $word (@words) {
+                  print OUT "$word\n";
+                }
                 close OUT;
 
                 my $list_quiz_dir = "$quiz_dir/$lexicon/$num_blanks-blanks/${word_length}s/$folder_name";
