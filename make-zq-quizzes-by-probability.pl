@@ -104,7 +104,7 @@ for my $lexicon (@lexicons) {
                 close OUT;
 
                 my $list_quiz_dir = "$quiz_dir/$lexicon/$num_blanks-blanks/${word_length}s/$folder_name";
-                system 'perl', './make-ios-quiz.pl', '--zyzdir', $zyzdir, '--lexicon', $lexicon, '--outdir', $list_quiz_dir, $list_file;
+                system 'perl', './make-zq-quiz.pl', '--zyzdir', $zyzdir, '--lexicon', $lexicon, '--outdir', $list_quiz_dir, $list_file;
 
                 $index += $list_size;
             }
