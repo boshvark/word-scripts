@@ -62,6 +62,8 @@ my $word_str = join(' ', sort @words);
 my $question_count = scalar keys %quiz_alphagrams;
 my $tmp_file = "$outdir/$quiz_name.zzq.tmp";
 my $zzq_file = "$outdir/$quiz_name.zzq";
+my $date = `date "+%s"`;
+chomp $date;
 open TMP_OUT, ">$tmp_file" or die "Can't write to $tmp_file: $!\n";
 print TMP_OUT <<EOF;
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -76,7 +78,7 @@ print TMP_OUT <<EOF;
    </conditions>
   </zyzzyva-search>
  </question-source>
- <randomizer algorithm="1" seed="1687016647" seed2="78332"/>
+ <randomizer algorithm="1" seed="$date" seed2="78332"/>
  <progress question-complete="false" total-questions="$question_count" correct-questions="0" question="0" correct="0"/>
 </zyzzyva-quiz>
 EOF
