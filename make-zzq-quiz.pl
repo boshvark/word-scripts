@@ -2,6 +2,7 @@
 
 use warnings;
 use strict;
+use File::Basename;
 use Getopt::Long;
 
 my %options;
@@ -19,16 +20,17 @@ if ($lexicon eq 'CSW12') {
     $lexicon_location = 'British';
 }
 
+# Create output file name from input list file names
+die "Please specify word list files.\n" unless @ARGV;
+my $quiz_name = join("_", map { my $f = $_; $f =~ s/^.*\///; $f =~ s/\.txt\z//; $f } @ARGV);
+
 # Output directory
 my $outdir = '.';
 if (exists $options{'outdir'}) {
     $outdir = $options{'outdir'};
-    system 'mkdir', '-p', $outdir;
+    my $subdir = dirname "$outdir/$quiz_name";
+    system 'mkdir', '-p', $subdir;
 }
-
-# Create output file name from input list file names
-die "Please specify word list files.\n" unless @ARGV;
-my $quiz_name = join("_", map { my $f = $_; $f =~ s/^.*\///; $f =~ s/\.txt\z//; $f } @ARGV);
 
 # Read word count for each alphagram in lexicon
 my %alphagram_words;
