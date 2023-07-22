@@ -57,6 +57,10 @@ while (my $line = <>) {
     my $alphagram = join('', sort(split '', $word));
     next if exists $quiz_alphagrams{$alphagram};
     $quiz_alphagrams{$alphagram} = 1;
+    unless (exists $alphagram_words{$alphagram}) {
+      print STDERR "Warning: No word found for alphagram: $alphagram\n";
+      next;
+    }
     $total_count += @{$alphagram_words{$alphagram}};
 }
 
