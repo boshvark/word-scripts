@@ -29,7 +29,7 @@ if (exists $options{'wordlist'}) {
   }
 }
 
-my @lexicons = ('NWL2020');
+my @lexicons = ('NWL2023');
 my @word_lengths = (7, 8);
 my @num_blanks = (2);
 my $sqlite = 'sqlite3';
