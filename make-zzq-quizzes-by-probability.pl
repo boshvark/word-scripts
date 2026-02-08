@@ -5,7 +5,8 @@ use strict;
 use Getopt::Long;
 
 my %options;
-my $ok = GetOptions(\%options, "zyzdir=s", "zyzdatadir=s", "wordlist=s", "listsize=i", "lexicon=s");
+my $ok = GetOptions(\%options, "zyzdir=s", "zyzdatadir=s", "wordlist=s", "listsize=i",
+                    "foldersize=i", "lexicon=s");
 
 # Zyzzyva installation directory
 die "Please specify Zyzzyva installation directory with --zyzdir.\n" unless exists $options{'zyzdir'};
@@ -34,8 +35,9 @@ my @word_lengths = (7, 8);
 my @num_blanks = (2);
 my $sqlite = 'sqlite3';
 my $list_size = exists $options{'listsize'} ? $options{'listsize'} : 100;
-my $folder_lists = 10;
-my $folder_size = $list_size * $folder_lists;
+my $folder_size = exists $options{'foldersize'} ? $options{'foldersize'} : 1000;
+die "Folder size $folder_size must be an even multiple of list size $list_size.\n"
+    unless $folder_size % $list_size == 0;
 
 my $top_dir = "grouped-by-$list_size";
 system 'rm', '-rf', $top_dir;
